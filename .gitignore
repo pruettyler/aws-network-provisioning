@@ -1,0 +1,12 @@
+# Terraform local cache
+.terraform/
+
+# Terraform state files -- these contain resource details or sensitive data / credentials
+terraform.tfstate
+terraform.tfstate.backup
+
+#Terraform crash logs
+crash.log
+
+# Variable files for secret values
+*.tfvars
