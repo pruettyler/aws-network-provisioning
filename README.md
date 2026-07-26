@@ -43,7 +43,7 @@ Output:
 
 Initial terraform apply failed because the default instance type wasn't Free Tier eligible on this account:
 
-​```
+```
 Error: creating EC2 Instance: operation error EC2: RunInstances, https response error StatusCode: 400, RequestID: 6bfdf184-d974-409d-87f9-5a38cf4d43f1, api error InvalidParameterCombination: The specified instance type is not eligible for Free Tier. For a list of Free Tier instance types, run 'describe-instance-types' with the filter 'free-tier-eligible=true'.
 │
 │   with aws_instance.security_vm,
@@ -58,11 +58,12 @@ Error: creating EC2 Instance: operation error EC2: RunInstances, https response 
 │   on main.tf line 179, in resource "aws_instance" "webapp_vm":
 │  179: resource "aws_instance" "webapp_vm" {
 │
-​```
+
+```
 
 Checked eligible types for this account and switched `instance_type` from `t2.micro` to `t3.micro`:
 
-​```
+```
 PS C:\Users\pruet\Desktop\Summer Project\Terraform> aws ec2 describe-instance-types --filters "Name=free-tier-eligible,Values=true" --query "InstanceTypes[].InstanceType" --output table
 -----------------------
 |DescribeInstanceTypes|
@@ -74,11 +75,11 @@ PS C:\Users\pruet\Desktop\Summer Project\Terraform> aws ec2 describe-instance-ty
 |  m7i-flex.large     |
 |  t3.small           |
 +---------------------+
-​```
+```
 
 Re-ran `terraform apply` — clean deployment:
 
-​```
+```
 aws_instance.webapp_vm: Creating...
 aws_instance.security_vm: Creating...
 aws_instance.webapp_vm: Still creating... [00m10s elapsed]
@@ -93,7 +94,6 @@ Outputs:
 security_vm_public_ip = "35.94.225.227"
 webapp_vm_public_ip = "44.251.150.1"
 PS C:\Users\pruet\Desktop\Summer Project\Terraform>
-
 ```
 
 ## Live Webapp Deployment
