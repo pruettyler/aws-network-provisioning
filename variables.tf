@@ -39,7 +39,7 @@ variable "webapp_az" {
 variable "instance_type" {
     description = "EC2 Instance type"
     type = string
-    default = "t2.micro"
+    default = "t3.micro"
 }
 
 variable "ssh_allowed_cidr" {

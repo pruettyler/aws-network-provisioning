@@ -39,9 +39,66 @@ Output:
   `webapp_vm_public_ip` — load this in a browser to view the static webpage
 
 
-## Example Output 
+## Example Output - Deployment
 
+Initial terraform apply failed because the default instance type wasn't Free Tier eligible on this account:
 
+​```
+Error: creating EC2 Instance: operation error EC2: RunInstances, https response error StatusCode: 400, RequestID: 6bfdf184-d974-409d-87f9-5a38cf4d43f1, api error InvalidParameterCombination: The specified instance type is not eligible for Free Tier. For a list of Free Tier instance types, run 'describe-instance-types' with the filter 'free-tier-eligible=true'.
+│
+│   with aws_instance.security_vm,
+│   on main.tf line 157, in resource "aws_instance" "security_vm":
+│  157: resource "aws_instance" "security_vm" {
+│
+╵
+╷
+│ Error: creating EC2 Instance: operation error EC2: RunInstances, https response error StatusCode: 400, RequestID: a3e43085-ad77-47b8-b887-0393aa96fdc7, api error InvalidParameterCombination: The specified instance type is not eligible for Free Tier. For a list of Free Tier instance types, run 'describe-instance-types' with the filter 'free-tier-eligible=true'.
+│
+│   with aws_instance.webapp_vm,
+│   on main.tf line 179, in resource "aws_instance" "webapp_vm":
+│  179: resource "aws_instance" "webapp_vm" {
+│
+​```
+
+Checked eligible types for this account and switched `instance_type` from `t2.micro` to `t3.micro`:
+
+​```
+PS C:\Users\pruet\Desktop\Summer Project\Terraform> aws ec2 describe-instance-types --filters "Name=free-tier-eligible,Values=true" --query "InstanceTypes[].InstanceType" --output table
+-----------------------
+|DescribeInstanceTypes|
++---------------------+
+|  t4g.small          |
+|  c7i-flex.large     |
+|  t3.micro           |
+|  t4g.micro          |
+|  m7i-flex.large     |
+|  t3.small           |
++---------------------+
+​```
+
+Re-ran `terraform apply` — clean deployment:
+
+​```
+aws_instance.webapp_vm: Creating...
+aws_instance.security_vm: Creating...
+aws_instance.webapp_vm: Still creating... [00m10s elapsed]
+aws_instance.security_vm: Still creating... [00m10s elapsed]
+aws_instance.security_vm: Creation complete after 13s [id=i-0ec687ee71a68d4bc]
+aws_instance.webapp_vm: Creation complete after 13s [id=i-03df5fafbe6a72266]
+
+Apply complete! Resources: 2 added, 0 changed, 0 destroyed.
+
+Outputs:
+
+security_vm_public_ip = "35.94.225.227"
+webapp_vm_public_ip = "44.251.150.1"
+PS C:\Users\pruet\Desktop\Summer Project\Terraform>
+
+```
+
+## Live Webapp Deployment
+
+![Live webapp running on EC2](live_webapp.png)
 
 ## Known Limitations / Future Work
 SSH capability is currently open to 0.0.0.0/0 (all IPs) rather than scoped to any specific, allowable range. Right now
@@ -53,5 +110,5 @@ include a private subnet for a database or other backend architecture.
 
 ## Author
 
-Jacob Pruett. This script was created as part of a self-directed cloud/DevOps curriculum. 
+Jacob Pruett. This project was created as part of a self-directed cloud/DevOps curriculum. 
 

@@ -19,6 +19,7 @@ resource "aws_subnet" "monitoring_sub" {
   vpc_id = aws_vpc.main.id
   cidr_block = var.monitoring_sub_cidr
   availability_zone = var.monitoring_az
+  map_public_ip_on_launch = true
 
   tags = {
     Name = "monitor-public-subnet"
@@ -30,6 +31,7 @@ resource "aws_subnet" "webapp_sub" {
   vpc_id = aws_vpc.main.id
   cidr_block = var.webapp_sub_cidr
   availability_zone = var.webapp_az
+  map_public_ip_on_launch = true
 
   tags = {
     Name = "webapp-sub"
@@ -157,11 +159,21 @@ resource "aws_instance" "security_vm" {
   instance_type = var.instance_type
   subnet_id = aws_subnet.monitoring_sub.id
   vpc_security_group_ids = [aws_security_group.sec_group_ssh.id]
+  key_name = "AWS-network-provisioning-key"
+
+  user_data = <<-EOF
+    #!/bin/bash
+    apt update
+    apt install -y git
+    git clone https://github.com/pruettyler/ssh-and-server-health-monitors /home/ubuntu/monitoring-scripts
+    chown -R ubuntu:ubuntu /home/ubuntu/monitoring-scripts
+  EOF
 
   tags = {
     Name = "Security-VM"
   }
 }
+
 
 # create webapp VM
 resource "aws_instance" "webapp_vm" {
@@ -169,6 +181,13 @@ resource "aws_instance" "webapp_vm" {
   instance_type = var.instance_type
   subnet_id = aws_subnet.webapp_sub.id
   vpc_security_group_ids = [aws_security_group.sec_group_ssh.id, aws_security_group.sec_group_http.id]
+  key_name = "AWS-network-provisioning-key"
+
+  user_data = <<-EOF
+    #!/bin/bash
+    apt update
+    apt install -y nginx
+  EOF
 
   tags = {
     Name = "Webapp-VM"
